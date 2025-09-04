@@ -26,18 +26,23 @@ pipeline {
                 bat '"C:/apache-maven-3.9.9/bin/mvn" package'
             }
         }
-        // stage('Deploy') {
-        //     when {
-        //         expression { 
-        //             // Ne déployer que si la configuration distributionManagement existe
-        //             return fileExists('pom.xml') && 
-        //                 readFile('pom.xml').contains('distributionManagement')
-        //             }
-        //         }
-        //         steps {
-        //             bat '"C:/apache-maven-3.9.9/bin/mvn" deploy'
-        //         }
-        // }
+        stage('Deploy') {
+            // when {
+            //     expression { 
+            //         // Ne déployer que si la configuration distributionManagement existe
+            //         return fileExists('pom.xml') && 
+            //             readFile('pom.xml').contains('distributionManagement')
+            //         }
+            //     }
+            //     steps {
+            //         bat '"C:/apache-maven-3.9.9/bin/mvn" deploy'
+            //     }
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'nexus-credentials', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASSWORD')]) {
+                    bat '"C:/apache-maven-3.9.9/bin/mvn" deploy -Dusername=%NEXUS_USER% -Dpassword=%NEXUS_PASSWORD%'
+                }
+            }
+        }
         stage('SonarQube analysis') {
             // steps {
             //    withSonarQubeEnv('MonServeurSonarQube') { // Remplacez 'MonServeurSonarQube' par le nom que vous avez choisi
